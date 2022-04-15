@@ -4,6 +4,7 @@ import com.mackittipat.macbootwebfluxr2dbcsample.model.Product;
 import com.mackittipat.macbootwebfluxr2dbcsample.repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Slf4j
@@ -38,6 +41,12 @@ public class ProductController {
     @PostMapping
     public Mono<ResponseEntity<Product>> createProduct(@RequestBody Product product) {
         return productRepository.save(product).map(ResponseEntity::ok);
+    }
+
+    @GetMapping(path = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> getProductStream() {
+        return Flux.interval(Duration.ofSeconds(2))
+                .map(sequence -> "Product - " + LocalTime.now().toString());
     }
 
 }
